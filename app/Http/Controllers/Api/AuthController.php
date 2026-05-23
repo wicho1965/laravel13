@@ -11,47 +11,59 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:4',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
+        $token = $user->createToken('api-token')->plainTextToken;
+
         return response()->json([
-            'user' => $user
-        ]);
+            'message' => 'Usuario registrado correctamente',
+            'user' => $user,
+            'token' => $token,
+        ], 201);
     }
 
     public function login(Request $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        $user = User::where('email', $validated['email'])->first();
+
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return response()->json([
-                'message' => 'Credenciales inválidas'
+                'message' => 'Credenciales inválidas',
             ], 401);
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
+            'message' => 'Login exitoso',
             'user' => $user,
-            'token' => $token
+            'token' => $token,
         ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        if ($request->user()?->currentAccessToken()) {
+            $request->user()->currentAccessToken()->delete();
+        }
 
         return response()->json([
-            'message' => 'Logout exitoso'
+            'message' => 'Logout exitoso',
         ]);
     }
 }

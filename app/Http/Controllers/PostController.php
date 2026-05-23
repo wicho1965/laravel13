@@ -18,12 +18,15 @@ class PostController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
         ]);
 
-        $post = Post::create($validated);
+        $post = Post::create([
+            'user_id' => $request->user()->id,
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+        ]);
 
         return response()->json([
             'data' => $post
@@ -40,7 +43,6 @@ class PostController extends Controller
     public function update(Request $request, Post $post): JsonResponse
     {
         $validated = $request->validate([
-            'user_id' => 'sometimes|exists:users,id',
             'title' => 'sometimes|string|max:255',
             'content' => 'sometimes|string',
         ]);
