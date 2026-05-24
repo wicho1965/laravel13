@@ -14,6 +14,9 @@ use App\Http\Controllers\CommentController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// POSTS abiertos temporalmente
+Route::apiResource('posts', PostController::class);
+
 /*
 |--------------------------------------------------------------------------
 | PROTECTED ROUTES (SANCTUM)
@@ -22,12 +25,6 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    // AUTH
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    // POSTS CRUD
-    Route::apiResource('posts', PostController::class);
-
-    // COMMENTS CRUD
     Route::apiResource('comments', CommentController::class);
 });
