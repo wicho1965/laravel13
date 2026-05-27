@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Http\Resources\PostResource;
 
 class PostController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json([
-            'data' => Post::with(['user', 'comments'])->get()
-        ]);
+    return response()->json([
+        'data' => PostResource::collection(Post::with(['user', 'comments'])->get())
+    ]);
     }
 
     public function store(Request $request): JsonResponse
@@ -23,11 +24,7 @@ class PostController extends Controller
             'content' => 'required|string',
         ]);
 
-        $post = Post::create([
-            'user_id' => $validated['user_id'],
-            'title' => $validated['title'],
-            'content' => $validated['content'],
-        ]);
+        $post = Post::create($validated);
 
         return response()->json([
             'data' => $post
@@ -36,8 +33,10 @@ class PostController extends Controller
 
     public function show(Post $post): JsonResponse
     {
+        $post->load(['user', 'comments']);
+
         return response()->json([
-            'data' => $post->load(['user', 'comments'])
+            'data' => new PostResource($post)
         ]);
     }
 
