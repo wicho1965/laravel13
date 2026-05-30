@@ -1,34 +1,20 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use App\Models\Post;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/posts', function () {
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
-    $posts = Post::with('user')->latest()->get();
-
-    return view('posts.index', compact('posts'));
-
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::post('/posts', function (Request $request) {
-
-    $request->validate([
-        'title' => 'required|max:255',
-        'content' => 'required',
-    ]);
-
-    Post::create([
-        'user_id' => 1,
-        'title' => $request->title,
-        'content' => $request->content,
-    ]);
-
-    return redirect('/posts');
-
-});
+require __DIR__.'/auth.php';
