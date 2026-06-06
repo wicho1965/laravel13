@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    <div class="min-h-screen bg-gray-100 flex">
+   <div class="min-h-screen bg-gray-100 flex">
 
         <!-- SIDEBAR -->
 
@@ -20,7 +20,7 @@
                     📝 Posts
                 </a>
 
-                <a href="#" class="block hover:text-gray-300">
+                <a href="/users" class="block hover:text-gray-300">
                     👥 Usuarios
                 </a>
 
